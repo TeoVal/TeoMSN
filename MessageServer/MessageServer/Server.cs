@@ -7,9 +7,9 @@ using System.Threading;
 
 namespace MessageServer
 {
-    class ServerSocket
+    class Server
     {
-        List<Socket> clients = new List<Socket>();
+        List<MessageClient> clients = new List<MessageClient>();
         Socket serverSocket = null;
         bool ServerIsConnected = true;
 
@@ -28,13 +28,6 @@ namespace MessageServer
             Thread listeningThread = new Thread(ListeningMethod);
             listeningThread.Start();
 
-            //string message = null;
-            //byte[] rxBuffer = new byte[1024];
-            //int rxSize = clientConnection.Receive(rxBuffer);
-            //message += Encoding.ASCII.GetString(rxBuffer, 0, rxSize);
-
-            //Console.WriteLine("Text received : {0}", message);
-
             Console.ReadKey();
         }
 
@@ -45,7 +38,10 @@ namespace MessageServer
                 Socket clientConnection = serverSocket.Accept();
                 string clientIPAddress = "The client with the Ip Address : " + IPAddress.Parse(((IPEndPoint)clientConnection.RemoteEndPoint).Address.ToString());
                 Console.WriteLine($"{clientIPAddress} connected to server");
-                clients.Add(clientConnection);
+
+                MessageClient messageClient = new MessageClient(clientConnection);
+                clients.Add(messageClient);
+                messageClient.BeginRx();
             }
         }
 

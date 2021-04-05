@@ -6,7 +6,7 @@ namespace MessageServer
     {
         static void Main(string[] args)
         {
-            ServerSocket socket = new ServerSocket();
+            Server socket = new Server();
             socket.StartServer();
         }
     }
