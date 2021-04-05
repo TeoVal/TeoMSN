@@ -29,21 +29,32 @@ namespace MessageClient
         /// </summary>
         private void InitializeComponent()
         {
+            this.messageBox = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
-            // Form1
+            // messageBox
+            // 
+            this.messageBox.Location = new System.Drawing.Point(63, 380);
+            this.messageBox.Name = "messageBox";
+            this.messageBox.Size = new System.Drawing.Size(100, 23);
+            this.messageBox.TabIndex = 0;
+            // 
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Name = "Form1";
+            this.Controls.Add(this.messageBox);
+            this.Name = "MainForm";
             this.Text = "Form1";
-            this.Load += new System.EventHandler(this.MainForm_Load);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
+
+        private System.Windows.Forms.TextBox messageBox;
     }
 }
 
