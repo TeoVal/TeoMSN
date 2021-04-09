@@ -34,13 +34,13 @@ namespace MessageClient
             MessageBox.Show($"Socket connected to {clientSocket.RemoteEndPoint.ToString()}");
         }
 
-        private void messageBox_Click(object sender, EventArgs e)
+
+        private void buttonSend_Click(object sender, EventArgs e)
         {
-            messageBox.Text = ToString();
-            byte[] message = Encoding.ASCII.GetBytes(messageBox.Text);
-            int messageSent = clientSocket.Send(message);
+            ASCIIEncoding asciiEncoding = new ASCIIEncoding();
+            byte[] sendingMessage = new byte[1500];
+            sendingMessage = asciiEncoding.GetBytes(messageBox.Text);
+            clientSocket.Send(sendingMessage);
         }
-
-
     }
 }
