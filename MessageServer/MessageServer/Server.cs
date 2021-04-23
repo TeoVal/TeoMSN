@@ -48,6 +48,7 @@ namespace MessageServer
         public void StopServer()
         {
             ServerIsConnected = false;
+
         }
     }
 }

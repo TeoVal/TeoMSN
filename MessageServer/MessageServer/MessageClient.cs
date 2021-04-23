@@ -37,6 +37,7 @@ namespace MessageServer
 
                 // Resume RX
                 BeginRx();
+                BeginTx(message);
             }
             catch (System.Net.Sockets.SocketException ex)
             {
@@ -44,5 +45,26 @@ namespace MessageServer
             }
         }
 
+        private void BeginTx(string data)
+        {
+            byte[] byteTx = Encoding.ASCII.GetBytes(data);
+            socket.BeginSend(byteTx, 0, byteTx.Length, 0, new AsyncCallback(SendCallback), socket);
+        }
+
+        private void SendCallback(IAsyncResult ar)
+        {
+            try
+            {
+                int bytesSent = socket.EndSend(ar);
+                Console.WriteLine("Sent {0} bytes to client", bytesSent);
+
+                //socket.Shutdown(SocketShutdown.Both);
+                //socket.Close();
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+        }
     }
 }
