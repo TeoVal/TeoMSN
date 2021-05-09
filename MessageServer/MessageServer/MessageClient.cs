@@ -11,10 +11,12 @@ namespace MessageServer
         private const int rxBuffSize = 1024;
         private byte[] rxBuffer = new byte[rxBuffSize];
         private Socket socket = null;
+        public string ID {get; private set;}
 
         public MessageClient(Socket socket)
         {
             this.socket = socket;
+            ID = Guid.NewGuid().ToString();
         }
 
 
@@ -39,12 +41,13 @@ namespace MessageServer
                 BeginRx();
                 BeginTx(message);
             }
-            catch (System.Net.Sockets.SocketException ex)
+            catch (SocketException ex)
             {
                 Console.WriteLine("Socket error. Client disconnected from the socket.");
+                SocketIsDisconnected();
             }
         }
-
+         
         private void BeginTx(string data)
         {
             byte[] byteTx = Encoding.ASCII.GetBytes(data);
@@ -57,14 +60,18 @@ namespace MessageServer
             {
                 int bytesSent = socket.EndSend(ar);
                 Console.WriteLine("Sent {0} bytes to client", bytesSent);
-
-                //socket.Shutdown(SocketShutdown.Both);
-                //socket.Close();
             }
             catch(Exception e)
             {
                 Console.WriteLine(e.ToString());
             }
+        }
+
+        public bool SocketIsDisconnected()
+        {
+            socket.Close();
+            socket.Dispose();
+            return true;
         }
     }
 }

@@ -45,10 +45,15 @@ namespace MessageServer
             }
         }
 
-        public void StopServer()
+        public void ClientIsDisconnected()
         {
-            ServerIsConnected = false;
-
+            foreach (MessageClient client in clients)
+            {
+                if (client.SocketIsDisconnected())
+                {
+                    clients.Remove(client);
+                }                  
+            }
         }
     }
 }

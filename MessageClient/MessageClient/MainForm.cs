@@ -10,77 +10,52 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace MessageClient
 {
     public partial class MainForm : Form
     {
-
-        Socket clientSocket = null;
-        ASCIIEncoding asciiEncoding = new ASCIIEncoding();
+        private MessageServerConnector messageServerConnector = null;
 
         public MainForm()
         {
             InitializeComponent();
+            messageServerConnector = new MessageServerConnector();
         }
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            try
+            messageServerConnector.Connect(connectionStatus.Text);
+
+            if (!messageServerConnector.IsConnected())
             {
-                IPHostEntry host = Dns.GetHostEntry("localhost");
-                IPAddress ipAdress = host.AddressList[0];
-                IPEndPoint remoteEndPoint = new IPEndPoint(ipAdress, 1669);
-
-                clientSocket = new Socket(ipAdress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-                clientSocket.Connect(remoteEndPoint);
-
-                //MessageBox.Show($"Socket connected to {clientSocket.RemoteEndPoint.ToString()}");
-                if (CheckIfConnected())
-                {
-                    MessageBox.Show($"Socket connected.");
-                    connectionStatus.Text = "Connected to server";
-                }
-                else
-                {
-                    connectionStatus.Text = "Not connected to server.";
-                }
-
-
-            }
-            catch (System.Net.Sockets.SocketException ex)
-            {
-                Console.WriteLine("Socket error. Client could not connect to the server.");
+                MessageBox.Show($"Socket is not connected.");
                 connectionStatus.Text = "Not connected to server.";
             }
-            
+            else
+            {
+                connectionStatus.Text = "Connected to server.";
+            }
         }
 
 
         private void buttonSend_Click(object sender, EventArgs e)
         {
-            byte[] sendingMessage = new byte[1500];
-            sendingMessage = asciiEncoding.GetBytes(messageBox.Text);
-            clientSocket.Send(sendingMessage);
-
-            listChat.Items.Add("Me:    " + messageBox.Text);
-            messageBox.Text = "";
-        }
-
-        private bool CheckIfConnected()
-        {
-            bool isConnected = false;
-            Ping ping = new Ping();
-            string ip = "127.0.0.1";
-            IPAddress address = IPAddress.Parse(ip);
-            PingReply pong = ping.Send(address);
-            if (pong.Status == IPStatus.Success)
+            try 
             {
-                Console.WriteLine(ip + " is up and running.");
-                isConnected = true;
-            }
+                messageServerConnector.SendMessage(messageBox.Text);
 
-            return isConnected;
+                listChat.Items.Add("Me:    " + messageBox.Text);
+                messageBox.Text = "";
+            }
+            catch(SocketException ex)
+            {
+                listChat.Items.Add("#######Message was not sent.Server is not connected to the client.#######");
+                connectionStatus.Text = "Not connected to server.";
+                messageBox.Text = "";
+            }
         }
     }
 }
