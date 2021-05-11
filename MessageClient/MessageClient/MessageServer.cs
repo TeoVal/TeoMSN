@@ -6,17 +6,47 @@ using System.Text;
 
 namespace MessageClient
 {
+    public delegate void MessageReceivedEventHandler(object sender, MessageReceivedEventArgs args);
+
     class MessageServerConnector
     {
         private Socket socket = null;
         private IPEndPoint remoteEndPoint = null;
         private ASCIIEncoding asciiEncoding = new ASCIIEncoding();
+        private const int rxBuffSize = 1024;
+        private byte[] rxBuffer = new byte[rxBuffSize];
+        public event MessageReceivedEventHandler MessageReceived;
 
-        public void SendMessage(string messageBoxText)
+        public void SendMessage(string message)
         {
-            byte[] sendingMessage = new byte[1500];
-            sendingMessage = asciiEncoding.GetBytes(messageBoxText);
-            socket.Send(sendingMessage);
+            byte[] messageBytes = new byte[1500];
+            messageBytes = asciiEncoding.GetBytes(message);
+            socket.Send(messageBytes);
+        }
+
+        public void StartReceive()
+        {
+            socket.BeginReceive(rxBuffer, 0, rxBuffer.Length, SocketFlags.None, ReceiveCallBack, null);
+        }
+
+        private void ReceiveCallBack(IAsyncResult asyncResult)
+        {
+            try
+            {
+                // Suspend RX
+                int rxByteCount = socket.EndReceive(asyncResult);
+
+                // Get the data
+                string message = Encoding.ASCII.GetString(rxBuffer, 0, rxByteCount);
+
+                // Resume RX
+                StartReceive();
+                MessageReceived?.Invoke(this, new MessageReceivedEventArgs(message));
+            }
+            catch (SocketException ex)
+            {
+                //ToDo: call Disconnect method
+            }
         }
 
         public bool IsConnected()
@@ -27,9 +57,13 @@ namespace MessageClient
             bool pollStatus = socket.Poll(1000, SelectMode.SelectRead);
             bool socketStatus = (socket.Available == 0);
             if ((pollStatus && socketStatus) || !socket.Connected)
+            {
                 return false;
+            }
             else
+            {
                 return true;
+            }
         }
 
         public void Connect(string connectionStatus)
@@ -42,10 +76,10 @@ namespace MessageClient
 
                 socket = new Socket(ipAdress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 socket.Connect(remoteEndPoint);
+                StartReceive();
             }
             catch (SocketException ex)
             {
-                Console.WriteLine("Socket error. Client could not connect to the server.");
                 connectionStatus = "Not connected to server.";
             }
         }

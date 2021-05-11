@@ -29,6 +29,8 @@ namespace MessageClient
         {
             messageServerConnector.Connect(connectionStatus.Text);
 
+            messageServerConnector.MessageReceived += HandleMessageReceived;
+
             if (!messageServerConnector.IsConnected())
             {
                 MessageBox.Show($"Socket is not connected.");
@@ -40,15 +42,35 @@ namespace MessageClient
             }
         }
 
+        public void HandleMessageReceived(object sender, MessageReceivedEventArgs args)
+        {
+            AddMesssageToList(args.Data);
+        }
+
+        private void AddMesssageToList(string msg)
+        {
+            if (base.InvokeRequired)
+            {
+                base.Invoke(new MethodInvoker(() =>
+                {
+                    AddMesssageToList(msg);
+                }));
+            }
+            else
+            {
+                listChat.Items.Add("Me:    " + msg);
+            }
+        }
+
 
         private void buttonSend_Click(object sender, EventArgs e)
         {
             try 
             {
                 messageServerConnector.SendMessage(messageBox.Text);
-
-                listChat.Items.Add("Me:    " + messageBox.Text);
                 messageBox.Text = "";
+
+
             }
             catch(SocketException ex)
             {
