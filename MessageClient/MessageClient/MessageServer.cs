@@ -6,8 +6,6 @@ using System.Text;
 
 namespace MessageClient
 {
-    public delegate void MessageReceivedEventHandler(object sender, MessageReceivedEventArgs args);
-
     class MessageServerConnector
     {
         private Socket socket = null;

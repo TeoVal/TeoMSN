@@ -6,14 +6,16 @@ using System.Text;
 
 namespace MessageServer
 {
-    class MessageClient
+      class MessageClientConnector
     {
         private const int rxBuffSize = 1024;
         private byte[] rxBuffer = new byte[rxBuffSize];
         private Socket socket = null;
         public string ID {get; private set;}
 
-        public MessageClient(Socket socket)
+        public event MessageReceivedEventHandler MessageReceived;
+
+        public MessageClientConnector(Socket socket)
         {
             this.socket = socket;
             ID = Guid.NewGuid().ToString();
@@ -35,10 +37,11 @@ namespace MessageServer
 
                 // Get the data
                 string message = Encoding.ASCII.GetString(rxBuffer, 0, rxByteCount);
-                Console.WriteLine(message);
 
                 // Resume RX
                 BeginRx();
+                MessageReceived?.Invoke(this, new MessageReceivedEventArgs(message));
+
                 BeginTx(message);
             }
             catch (SocketException ex)

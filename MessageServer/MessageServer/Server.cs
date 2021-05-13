@@ -9,7 +9,7 @@ namespace MessageServer
 {
     class Server
     {
-        List<MessageClient> clients = new List<MessageClient>();
+        List<MessageClientConnector> clients = new List<MessageClientConnector>();
         Socket serverSocket = null;
         bool ServerIsConnected = true;
 
@@ -22,6 +22,7 @@ namespace MessageServer
             serverSocket = new Socket(ipAdress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             serverSocket.Bind(localEndPoint);
             serverSocket.Listen(1);
+
 
             Console.WriteLine("Waiting for a connection...");
 
@@ -39,15 +40,21 @@ namespace MessageServer
                 string clientIPAddress = "The client with the Ip Address : " + IPAddress.Parse(((IPEndPoint)clientConnection.RemoteEndPoint).Address.ToString());
                 Console.WriteLine($"{clientIPAddress} connected to server");
 
-                MessageClient messageClient = new MessageClient(clientConnection);
-                clients.Add(messageClient);
-                messageClient.BeginRx();
+                MessageClientConnector messageClientConnector = new MessageClientConnector(clientConnection);
+                clients.Add(messageClientConnector);
+                messageClientConnector.MessageReceived += HandleMessageReceived; 
+                messageClientConnector.BeginRx();
             }
+        }
+
+        private void HandleMessageReceived(object sender, MessageReceivedEventArgs e)
+        {
+            Console.WriteLine($"Message Received by client: {e.Data}.");
         }
 
         public void ClientIsDisconnected()
         {
-            foreach (MessageClient client in clients)
+            foreach (MessageClientConnector client in clients)
             {
                 if (client.SocketIsDisconnected())
                 {

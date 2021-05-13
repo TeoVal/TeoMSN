@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace MessageClient
+namespace MessageServer
 {
-    public delegate void MessageReceivedEventHandler(object sender, MessageReceivedEventArgs args);
+    public delegate void MessageReceivedEventHandler(object sender, MessageReceivedEventArgs e);
 
-    public class MessageReceivedEventArgs : EventArgs
+    public class MessageReceivedEventArgs: EventArgs
     {
         public string Data { get; private set; }
 
