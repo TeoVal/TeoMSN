@@ -50,6 +50,11 @@ namespace MessageServer
         private void HandleMessageReceived(object sender, MessageReceivedEventArgs e)
         {
             Console.WriteLine($"Message Received by client: {e.Data}.");
+
+            foreach (MessageClientConnector client in clients)
+            {
+                client.SendMessage(e.Data);
+            }
         }
 
         public void ClientIsDisconnected()

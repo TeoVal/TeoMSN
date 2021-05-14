@@ -41,8 +41,6 @@ namespace MessageServer
                 // Resume RX
                 BeginRx();
                 MessageReceived?.Invoke(this, new MessageReceivedEventArgs(message));
-
-                BeginTx(message);
             }
             catch (SocketException ex)
             {
@@ -51,7 +49,7 @@ namespace MessageServer
             }
         }
          
-        private void BeginTx(string data)
+        public void SendMessage(string data)
         {
             byte[] byteTx = Encoding.ASCII.GetBytes(data);
             socket.BeginSend(byteTx, 0, byteTx.Length, 0, new AsyncCallback(SendCallback), socket);
