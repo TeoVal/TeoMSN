@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Threading;
+using MessageClient.Utils;
 
 namespace MessageClient
 {
@@ -27,6 +28,8 @@ namespace MessageClient
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            string answer = QuestionBox.Ask("Whats's your name", "User name");
+            
             messageServerConnector.Connect(connectionStatus.Text);
 
             messageServerConnector.MessageReceived += HandleMessageReceived;

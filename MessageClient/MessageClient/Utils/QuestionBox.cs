@@ -41,11 +41,12 @@ namespace MessageClient.Utils
         public static string Ask(string question, string title)
         {
             string answer = null;
-            
 
-
-
-
+            QuestionBox questionBox = new QuestionBox();
+            questionBox.Question = question;
+            questionBox.FormTitle = title;
+            questionBox.ShowDialog();
+            answer = questionBox.Answer;
 
             return answer;
         }
