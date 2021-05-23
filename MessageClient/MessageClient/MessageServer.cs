@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace MessageClient
 {
@@ -22,6 +23,14 @@ namespace MessageClient
             socket.Send(messageBytes);
         }
 
+        public void SendMessage(Message message)
+        {
+            string serializedMessage = JsonConvert.SerializeObject(message);
+            SendMessage(serializedMessage);
+        }
+
+        
+
         public void StartReceive()
         {
             socket.BeginReceive(rxBuffer, 0, rxBuffer.Length, SocketFlags.None, ReceiveCallBack, null);
@@ -35,11 +44,12 @@ namespace MessageClient
                 int rxByteCount = socket.EndReceive(asyncResult);
 
                 // Get the data
-                string message = Encoding.ASCII.GetString(rxBuffer, 0, rxByteCount);
+                string messageReceived = Encoding.ASCII.GetString(rxBuffer, 0, rxByteCount);
+                Message messageDeserialized = JsonConvert.DeserializeObject<Message>(messageReceived);
 
                 // Resume RX
                 StartReceive();
-                MessageReceived?.Invoke(this, new MessageReceivedEventArgs(message));
+                MessageReceived?.Invoke(this, new MessageReceivedEventArgs(messageDeserialized));
             }
             catch (SocketException ex)
             {

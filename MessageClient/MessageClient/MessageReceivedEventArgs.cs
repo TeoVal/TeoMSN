@@ -8,9 +8,9 @@ namespace MessageClient
 
     public class MessageReceivedEventArgs : EventArgs
     {
-        public string Data { get; private set; }
+        public Message Data { get; private set; }
 
-        public MessageReceivedEventArgs(string data)
+        public MessageReceivedEventArgs(Message data)
         {
             this.Data = data;
         }

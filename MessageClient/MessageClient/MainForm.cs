@@ -20,6 +20,8 @@ namespace MessageClient
     {
         private MessageServerConnector messageServerConnector = null;
 
+        private string userName;
+
         public MainForm()
         {
             InitializeComponent();
@@ -28,7 +30,7 @@ namespace MessageClient
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            string answer = QuestionBox.Ask("Whats's your name", "User name");
+            AskUserName();
             
             messageServerConnector.Connect(connectionStatus.Text);
 
@@ -45,12 +47,27 @@ namespace MessageClient
             }
         }
 
+        private void AskUserName()
+        {
+            string answer = QuestionBox.Ask("Whats's your name", "User name");
+
+            if (answer == null)
+            {
+                MessageBox.Show("You need to enter a name.The application will close");
+                this.Close();
+            }
+            else
+            {
+                userName = answer;
+            }
+        }
+
         public void HandleMessageReceived(object sender, MessageReceivedEventArgs args)
         {
             AddMesssageToList(args.Data);
         }
 
-        private void AddMesssageToList(string msg)
+        private void AddMesssageToList(Message msg)
         {
             if (base.InvokeRequired)
             {
@@ -61,7 +78,7 @@ namespace MessageClient
             }
             else
             {
-                listChat.Items.Add("Me:    " + msg);
+                listChat.Items.Add($"{msg.Sender}: " + msg.Content);
             }
         }
 
@@ -70,7 +87,8 @@ namespace MessageClient
         {
             try 
             {
-                messageServerConnector.SendMessage(messageBox.Text);
+                Message message = new Message(messageBox.Text, userName);
+                messageServerConnector.SendMessage(message);
                 messageBox.Text = "";
 
 
